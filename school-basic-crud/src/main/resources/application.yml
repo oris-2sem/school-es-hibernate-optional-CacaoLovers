@@ -1,7 +1,0 @@
-db:
-  username: postgres
-  password: marsel55
-  driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:5432/javalab-2023
-  maximum-pool-size: 2
-

@@ -9,6 +9,7 @@ import ru.itis.model.Lesson;
 import ru.itis.model.LessonStudentId;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class TaskEntityDao<T, LessonStudentId> implements EntityDao<T, LessonStu
     private final SessionFactory sessionFactory;
 
     @Override
-    public LessonStudentId save(T entity){
+    public T save(Class clazz, T entity){
         LessonStudentId uuid ;
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
@@ -25,12 +26,12 @@ public class TaskEntityDao<T, LessonStudentId> implements EntityDao<T, LessonStu
 
             session.getTransaction().commit();
             session.close();
+            return findById(clazz, uuid).orElseThrow();
         }
-        return uuid;
     }
 
     @Override
-    public T getEntityById(Class clazz, LessonStudentId id) {
+    public Optional<T> findById(Class clazz, LessonStudentId id) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
@@ -38,12 +39,12 @@ public class TaskEntityDao<T, LessonStudentId> implements EntityDao<T, LessonStu
 
             session.getTransaction().commit();
             session.close();
-            return entity;
+            return Optional.ofNullable(entity);
         }
     }
 
     @Override
-    public List<T> getEntities(Class clazz) {
+    public List<T> findAll(Class clazz) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
@@ -61,17 +62,6 @@ public class TaskEntityDao<T, LessonStudentId> implements EntityDao<T, LessonStu
             session.beginTransaction();
 
             session.remove(entity);
-
-            session.getTransaction().commit();
-            session.close();
-        }
-    }
-
-    public void update(T entity) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            session.update(entity);
 
             session.getTransaction().commit();
             session.close();

@@ -6,10 +6,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.Optional;
 
 @Repository
 @AllArgsConstructor
@@ -19,8 +16,8 @@ public class JpaEntityDao<T, UUID> implements EntityDao<T, UUID>{
 
 
     @Override
-    public UUID save(T entity){
-        UUID uuid ;
+    public T save(Class clazz, T entity){
+        UUID uuid;
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
@@ -28,12 +25,12 @@ public class JpaEntityDao<T, UUID> implements EntityDao<T, UUID>{
 
             session.getTransaction().commit();
             session.close();
+            return findById(clazz, uuid).orElseThrow();
         }
-        return uuid;
     }
 
     @Override
-    public T getEntityById(Class clazz, UUID id) {
+    public Optional<T> findById(Class clazz, UUID id) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
@@ -41,12 +38,12 @@ public class JpaEntityDao<T, UUID> implements EntityDao<T, UUID>{
 
             session.getTransaction().commit();
             session.close();
-            return entity;
+            return Optional.ofNullable(entity);
         }
     }
 
     @Override
-    public List<T> getEntities(Class clazz) {
+    public List<T> findAll(Class clazz) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
@@ -70,15 +67,5 @@ public class JpaEntityDao<T, UUID> implements EntityDao<T, UUID>{
         }
     }
 
-    public void update(T entity) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            session.update(entity);
-
-            session.getTransaction().commit();
-            session.close();
-        }
-    }
 
 }
